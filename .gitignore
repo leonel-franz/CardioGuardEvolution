@@ -1,0 +1,40 @@
+﻿# Android/IntelliJ
+*.iml
+.gradle/
+.local/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/gradle.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/shelf/
+.idea/**/usage.statistics.xml
+!.idea/codeStyles/
+!.idea/runConfigurations/
+
+# Build
+/build/
+*/build/
+captures/
+outputs/
+
+# Gradle
+**/local.properties
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keystores (no subir llaves de firma)
+*.keystore
+*.jks
+
+# Logs y varios
+*.log
+.navigation/
+.cxx/
+*.hprof
