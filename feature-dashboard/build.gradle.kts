@@ -26,6 +26,8 @@ android {
 dependencies {
     implementation(project(":core-designsystem"))
 
+    implementation("androidx.compose.material:material-icons-extended")
+
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

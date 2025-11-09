@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":core-designsystem"))
     implementation(project(":feature-auth"))
     implementation(project(":feature-dashboard"))
+    implementation("androidx.compose.material:material-icons-extended")
     // (los demás features se irán agregando cuando los usemos desde :app)
 
     // --- AndroidX base ---

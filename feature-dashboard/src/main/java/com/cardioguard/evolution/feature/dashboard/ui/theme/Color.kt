@@ -1,5 +1,4 @@
-// app/src/main/java/com/example/cardioguardevolution/ui/theme/Color.kt
-package com.example.cardioguardevolution.ui.theme
+package com.cardioguard.evolution.feature.dashboard.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
