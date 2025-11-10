@@ -45,6 +45,9 @@ dependencies {
     implementation(project(":core-designsystem"))
     implementation(project(":feature-auth"))
     implementation(project(":feature-dashboard"))
+    implementation(project(":feature-cardiac"))
+    implementation(project(":feature-history"))
+    implementation(project(":feature-profile"))
     implementation("androidx.compose.material:material-icons-extended")
     // (los demás features se irán agregando cuando los usemos desde :app)
 

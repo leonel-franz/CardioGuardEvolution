@@ -20,6 +20,7 @@ material = "1.10.0"
 navigationCompose = "2.8.3"
 
 [libraries]
+androidx-compose-material-iconsExtended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }

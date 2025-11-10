@@ -25,7 +25,7 @@ android {
 
 dependencies {
     implementation(project(":core-designsystem"))
-
+    implementation(libs.androidx.compose.material.iconsExtended)
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation(libs.androidx.core.ktx)
