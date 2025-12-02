@@ -6,6 +6,7 @@ plugins {
     kotlin("kapt")
 
     alias(libs.plugins.hilt)
+    id("dagger.hilt.android.plugin")
 }
 
 val composeVersion = "1.5.0"
@@ -64,6 +65,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
 
     // --- Compose BOM + UI ---
     implementation(platform(libs.androidx.compose.bom))
@@ -104,7 +106,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01") // optional para nav+Hilt
     implementation("androidx.navigation:navigation-compose:2.7.3") // usa la versión más reciente
     implementation("androidx.compose.runtime:runtime:1.6.0")       // si no la tienes ya
-    implementation("androidx.compose.material3:material3:1.2.0")   // si usas Material3
+    implementation("androidx.compose.material3:material3:1.2.0")
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")

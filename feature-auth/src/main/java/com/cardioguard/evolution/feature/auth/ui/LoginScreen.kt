@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 fun LoginScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     onLoginSuccess: (String) -> Unit,
+    onGoToRegister: () -> Unit, // ← nuevo callback
     onGoToOnboarding: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -58,6 +59,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // --- Logos y título ---
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Image(painter = painterResource(R.drawable.ic_heart), contentDescription = null, modifier = Modifier.size(64.dp))
                 Image(painter = painterResource(R.drawable.ic_brain), contentDescription = null, modifier = Modifier.size(64.dp))
@@ -65,14 +67,23 @@ fun LoginScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            Text("CardioGuard Evolution", color = Color.White, textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
+            Text(
+                "CardioGuard Evolution",
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+            )
             Spacer(Modifier.height(4.dp))
-            Text("Monitoreo inteligente de salud", color = Color.White.copy(alpha = 0.6f), textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Monitoreo inteligente de salud",
+                color = Color.White.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(Modifier.height(32.dp))
 
+            // --- Email ---
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -93,6 +104,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(12.dp))
 
+            // --- Contraseña ---
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -120,6 +132,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(24.dp))
 
+            // --- Botón login ---
             Button(
                 onClick = { focusManager.clearFocus(); viewModel.login(email.trim(), password) },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -134,15 +147,36 @@ fun LoginScreen(
                 }
             }
 
+            // --- Mensaje de error ---
             if (state.error != null) {
                 Spacer(Modifier.height(8.dp))
-                Text(state.error ?: "", color = Color(0xFFFF6B6B), modifier = Modifier.padding(top = 8.dp))
+                Text(
+                    text = state.error ?: "Email o contraseña incorrectos",
+                    color = Color(0xFFFF6B6B),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Spacer(Modifier.height(12.dp))
 
+            // --- Olvidaste contraseña ---
             TextButton(onClick = onGoToOnboarding) {
                 Text("¿Olvidaste tu contraseña?", color = Color.White.copy(alpha = 0.6f))
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // --- Registro ---
+            Row(
+                verticalAlignment = Alignment.CenterVertically // ← esto alinea los textos
+            ) {
+                Text("¿No tienes cuenta? ", color = Color.White.copy(alpha = 0.6f))
+                TextButton(
+                    onClick = onGoToRegister,
+                    contentPadding = PaddingValues(0.dp) // opcional: elimina padding extra
+                ) {
+                    Text("Regístrate aquí", color = Color.White)
+                }
             }
         }
     }

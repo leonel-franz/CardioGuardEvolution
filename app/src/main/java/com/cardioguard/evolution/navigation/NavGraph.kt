@@ -15,6 +15,7 @@ import com.cardioguard.evolution.feature.dashboard.ui.DashboardPrincipal
 import com.cardioguard.evolution.feature.history.ui.AlertsCenterScreen
 import com.cardioguard.evolution.feature.history.ui.HistoryCompleteScreen
 import com.cardioguard.evolution.feature.profile.ui.ProfileScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
@@ -40,6 +41,9 @@ fun AppNavHost(navController: NavHostController) {
                 },
                 onGoToOnboarding = {
                     navController.navigate(Route.Onboarding.path)
+                },
+                onGoToRegister = {        // ← aquí agregamos
+                    navController.navigate(Route.Register.path)
                 }
             )
         }
@@ -47,7 +51,8 @@ fun AppNavHost(navController: NavHostController) {
         // REGISTER
         composable(Route.Register.path) {
             RegisterScreen(
-                onBack = { navController.popBackStack() },
+                navController = navController,       // ← obligatorio
+                viewModel = hiltViewModel(),
                 onRegistered = { name ->
                     navController.navigate(Route.Dashboard.create(name)) {
                         popUpTo(Route.Register.path) { inclusive = true }

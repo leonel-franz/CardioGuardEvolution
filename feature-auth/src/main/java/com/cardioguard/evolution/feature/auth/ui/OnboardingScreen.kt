@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.cardioguard.evolution.feature.auth.R
 import com.cardioguard.evolution.feature.auth.navigation.Route
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
@@ -31,21 +32,44 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.cardioguard.evolution.common.UserPreferences
 import com.cardioguard.evolution.design.components.TermsAndConditionsDialog
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OnboardingScreen(
     navController: NavController
 ) {
-    // === Estados para diálogo de Términos ===
-    var dialogOpen by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    TermsAndConditionsDialog(
-        open = dialogOpen,
-        onDismiss = { dialogOpen = false },
-        onAccept = { dialogOpen = false }
-    )
+    // Estado que controla si el diálogo se muestra
+    var dialogOpen by remember { mutableStateOf(false) }
+
+    // --- Verificamos DataStore ---
+    val termsAccepted by UserPreferences.isTermsAccepted(context).collectAsState(initial = false)
+
+    // Mostramos el diálogo solo si NO se ha aceptado previamente
+    LaunchedEffect(termsAccepted) {
+        if (!termsAccepted) dialogOpen = true
+    }
+
+    // Función para aceptar términos
+    fun acceptTerms() {
+        scope.launch {
+            UserPreferences.setTermsAccepted(context, true)
+            dialogOpen = false
+        }
+    }
+
+    // ======== DIALOGO DE TERMINOS ========
+    if (dialogOpen) {
+        TermsAndConditionsDialog(
+            open = dialogOpen,
+            onAccept = { acceptTerms() }
+        )
+    }
 
     // =====================
     // Slides del Onboarding
@@ -106,7 +130,6 @@ fun OnboardingScreen(
                 )
                 .padding(horizontal = 24.dp, vertical = 20.dp)
         ) {
-
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,9 +154,7 @@ fun OnboardingScreen(
                             modifier = Modifier.size(60.dp)
                         )
                     }
-
                     Spacer(Modifier.height(12.dp))
-
                     Text(
                         text = "CardioGuard",
                         fontSize = 28.sp,
@@ -189,18 +210,14 @@ fun OnboardingScreen(
                                     modifier = Modifier.size(70.dp)
                                 )
                             }
-
                             Spacer(modifier = Modifier.height(12.dp))
-
                             Text(
                                 slide.title,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
-
                             Spacer(modifier = Modifier.height(8.dp))
-
                             Text(
                                 slide.description,
                                 fontSize = 14.sp,
