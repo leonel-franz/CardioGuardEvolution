@@ -13,16 +13,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.DeviceThermostat
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Watch
+import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +41,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -48,14 +55,17 @@ import androidx.compose.ui.unit.sp
 import com.cardioguard.evolution.feature.dashboard.ui.theme.BarraFondo
 import com.cardioguard.evolution.feature.dashboard.ui.theme.CardBlanca
 import com.cardioguard.evolution.feature.dashboard.ui.theme.NaranjaModerado
+import com.cardioguard.evolution.feature.dashboard.ui.theme.RojoAlerta
 import com.cardioguard.evolution.feature.dashboard.ui.theme.VerdeNormal
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.cardioguard.evolution.feature.dashboard.vm.DashboardViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DashboardPrincipal(
+    dashboardViewModel: DashboardViewModel,
     userName: String,
     onOpenMonitor: () -> Unit,
     onOpenAlerts: () -> Unit,
@@ -63,9 +73,7 @@ fun DashboardPrincipal(
     onOpenProfile: () -> Unit = {}
 ) {
     val helloName = userName.ifBlank { "Usuario" }
-    val timeNow = remember {
-        SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-    }
+    val timeNow = remember { SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()) }
 
     Scaffold { padding ->
         Column(
@@ -76,8 +84,7 @@ fun DashboardPrincipal(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-
-            // HEADER
+            // HEADER CON ICONOS DE ESTADO
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,9 +93,7 @@ fun DashboardPrincipal(
                 Column {
                     Text(
                         text = "Hola $helloName",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = Color.White
-                        )
+                        style = MaterialTheme.typography.titleMedium.copy(color = Color.White)
                     )
                     Text(
                         text = timeNow,
@@ -97,23 +102,61 @@ fun DashboardPrincipal(
                         )
                     )
                 }
-                FilledTonalIconButton(
-                    onClick = onOpenProfile,
-                    colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = Color.White.copy(alpha = 0.1f),
-                        contentColor = Color.White
-                    )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
+                    // Estado WiFi dinámico
+                    Box {
+                        Icon(
+                            imageVector = Icons.Outlined.Wifi,
+                            contentDescription = "Estado WiFi",
+                            tint = if (dashboardViewModel.wifiConnected.value) VerdeNormal else RojoAlerta,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        if (!dashboardViewModel.wifiConnected.value) {
+                            Surface(
+                                modifier = Modifier.size(8.dp).align(Alignment.TopEnd),
+                                shape = CircleShape,
+                                color = RojoAlerta
+                            ) {}
+                        }
+                    }
+
+                    // Estado Sensor dinámico
+                    Box {
+                        Icon(
+                            imageVector = Icons.Outlined.Watch,
+                            contentDescription = "Estado Sensor",
+                            tint = if (dashboardViewModel.sensorDetected.value) VerdeNormal else RojoAlerta,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        if (!dashboardViewModel.sensorDetected.value) {
+                            Surface(
+                                modifier = Modifier.size(8.dp).align(Alignment.TopEnd),
+                                shape = CircleShape,
+                                color = RojoAlerta
+                            ) {}
+                        }
+                    }
+
+                    FilledTonalIconButton(
+                        onClick = onOpenProfile,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = Color.White.copy(alpha = 0.1f),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
+                    }
                 }
             }
 
             // TARJETA BPM
             Card(
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = CardBlanca
-                )
+                colors = CardDefaults.cardColors(containerColor = CardBlanca)
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
@@ -126,7 +169,7 @@ fun DashboardPrincipal(
                     ) {
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
-                                text = "72",
+                                text = dashboardViewModel.bpm.value, // BPM ahora viene de /ir
                                 fontSize = 40.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF222222)
@@ -139,162 +182,140 @@ fun DashboardPrincipal(
                                 )
                             )
                         }
-
-                        Box(
-                            modifier = Modifier
-                                .height(24.dp)
-                                .width(96.dp)
-                        )
+                        Box(modifier = Modifier.height(24.dp).width(96.dp))
                     }
 
                     AssistChip(
                         onClick = {},
-                        label = { Text("NORMAL") },
+                        label = { Text(
+                            if (dashboardViewModel.alert.value.isEmpty()) "NORMAL" else "ALERTA",
+                            fontSize = 12.sp
+                        ) },
                         colors = AssistChipDefaults.assistChipColors(
-                            containerColor = VerdeNormal.copy(alpha = 0.12f),
-                            labelColor = VerdeNormal
+                            containerColor = if (dashboardViewModel.alert.value.isEmpty())
+                                VerdeNormal.copy(alpha = 0.12f) else RojoAlerta.copy(alpha = 0.2f),
+                            labelColor = if (dashboardViewModel.alert.value.isEmpty()) VerdeNormal else RojoAlerta
                         )
                     )
                 }
             }
 
-            // TARJETA ESTRÉS
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = CardBlanca
-                )
+            // OXIGENACIÓN Y TEMPERATURA
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                // SpO₂ dinámico
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardBlanca)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            "Estrés",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                color = Color(0xFF444444)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Icon(Icons.Outlined.WaterDrop, contentDescription = "Oxigenación", tint = Color(0xFF1A2B4A), modifier = Modifier.size(20.dp))
+                            Text("SpO₂", style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF666666)))
+                        }
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = dashboardViewModel.oxigen.value,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF222222)
                             )
-                        )
-                        Text(
-                            "40%",
-                            color = NaranjaModerado,
-                            style = MaterialTheme.typography.bodyMedium
+                            Text("%", style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF666666)), modifier = Modifier.padding(start = 2.dp))
+                        }
+                        AssistChip(
+                            onClick = {},
+                            label = { Text("ÓPTIMO", fontSize = 10.sp) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = VerdeNormal.copy(alpha = 0.12f),
+                                labelColor = VerdeNormal
+                            ),
+                            modifier = Modifier.height(24.dp)
                         )
                     }
-
-                    LinearProgressIndicator(
-                        // ✅ versión lambda (API nueva de Material3)
-                        progress = { 0.40f },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = NaranjaModerado,
-                        trackColor = BarraFondo
-                    )
-
-                    AssistChip(
-                        onClick = {},
-                        label = { Text("MODERADO") },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = NaranjaModerado.copy(alpha = 0.12f),
-                            labelColor = NaranjaModerado
-                        )
-                    )
                 }
-            }
 
-            // TARJETA ANSIEDAD
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = CardBlanca
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                // Temperatura dinámica
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardBlanca)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            "Ansiedad",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                color = Color(0xFF444444)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Icon(Icons.Outlined.DeviceThermostat, contentDescription = "Temperatura", tint = Color(0xFF1A2B4A), modifier = Modifier.size(20.dp))
+                            Text("Temp", style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF666666)))
+                        }
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = dashboardViewModel.temp.value,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF222222)
                             )
-                        )
-                        Text(
-                            "15%",
-                            color = VerdeNormal,
-                            style = MaterialTheme.typography.bodyMedium
+                            Text("°C", style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF666666)), modifier = Modifier.padding(start = 2.dp))
+                        }
+                        AssistChip(
+                            onClick = {},
+                            label = { Text("NORMAL", fontSize = 10.sp) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = VerdeNormal.copy(alpha = 0.12f),
+                                labelColor = VerdeNormal
+                            ),
+                            modifier = Modifier.height(24.dp)
                         )
                     }
-
-                    LinearProgressIndicator(
-                        progress = { 0.15f },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = VerdeNormal,
-                        trackColor = BarraFondo
-                    )
-
-                    AssistChip(
-                        onClick = {},
-                        label = { Text("BAJO") },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = VerdeNormal.copy(alpha = 0.12f),
-                            labelColor = VerdeNormal
-                        )
-                    )
                 }
             }
 
             Spacer(Modifier.height(4.dp))
 
-            // ACCIONES RÁPIDAS (3 arriba, 2 abajo)
+            // ----------------------
+            // DEBUG PANEL
+            // ----------------------
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("DEBUG PANEL", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("BPM: ${dashboardViewModel.bpm.value}", color = Color.White)
+                    Text("O₂: ${dashboardViewModel.oxigen.value}", color = Color.White)
+                    Text("Temp: ${dashboardViewModel.temp.value} °C", color = Color.White)
+                    Text("WiFi: ${dashboardViewModel.wifiConnected.value}", color = Color.White)
+                    Text("Sensor: ${dashboardViewModel.sensorDetected.value}", color = Color.White)
+                }
+            }
+
+            // ACCIONES RÁPIDAS
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(
-                    12.dp,
-                    alignment = Alignment.CenterHorizontally
-                ),
+                horizontalArrangement = Arrangement.spacedBy(12.dp, alignment = Alignment.CenterHorizontally),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 maxItemsInEachRow = 3,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             ) {
-                QuickAction(
-                    icon = Icons.Outlined.FavoriteBorder,
-                    text = "Monitoreo",
-                    onClick = onOpenMonitor
-                )
-                QuickAction(
-                    icon = Icons.Outlined.BarChart,
-                    text = "Salud Mental",
-                    onClick = { /* TODO */ }
-                )
-                QuickAction(
-                    icon = Icons.Outlined.Alarm,
-                    text = "Alertas",
-                    onClick = onOpenAlerts
-                )
-                QuickAction(
-                    icon = Icons.Outlined.History,
-                    text = "Historial",
-                    onClick = onOpenHistory
-                )
-                QuickAction(
-                    icon = Icons.Outlined.Person,
-                    text = "Perfil",
-                    onClick = onOpenProfile
-                )
+                QuickAction(icon = Icons.Outlined.FavoriteBorder, text = "Monitoreo", onClick = onOpenMonitor)
+                QuickAction(icon = Icons.Outlined.BarChart, text = "Salud Mental", onClick = { })
+                QuickAction(icon = Icons.Outlined.Alarm, text = "Alertas", onClick = onOpenAlerts)
+                QuickAction(icon = Icons.Outlined.History, text = "Historial", onClick = onOpenHistory)
+                QuickAction(icon = Icons.Outlined.Person, text = "Perfil", onClick = onOpenProfile)
             }
         }
     }
 }
 
+// ---------------------
+// QuickAction composable
+// ---------------------
 @Composable
 private fun QuickAction(
     icon: ImageVector,
@@ -304,14 +325,9 @@ private fun QuickAction(
     ElevatedButton(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
-            .width(120.dp)
-            .height(90.dp),
+        modifier = Modifier.width(120.dp).height(90.dp),
         contentPadding = PaddingValues(0.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            color = Color.White.copy(alpha = 0.20f)
-        ),
+        border = BorderStroke(width = 1.dp, color = Color.White.copy(alpha = 0.20f)),
         colors = ButtonDefaults.elevatedButtonColors(
             containerColor = Color.White.copy(alpha = 0.06f),
             contentColor = Color.White
@@ -323,10 +339,7 @@ private fun QuickAction(
         ) {
             Icon(imageVector = icon, contentDescription = null)
             Spacer(Modifier.height(6.dp))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge
-            )
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
         }
     }
 }

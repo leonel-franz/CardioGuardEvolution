@@ -74,6 +74,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.material)
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
 
     // --- Navigation Compose + ViewModel Compose (para nav & state) ---
     implementation(libs.androidx.navigation.compose)
@@ -110,6 +112,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
 // O la última versión estable
     implementation("androidx.compose.ui:ui:1.5.0")
 // Asegúrate de que Compose esté actualizado
