@@ -47,12 +47,12 @@ class AuthViewModel @Inject constructor(
         apellidos: String,
         email: String,
         password: String,
-        fecha_Nacimiento: String,
+        fecha_nacimiento: String,
         genero: String
     ) {
         viewModelScope.launch {
             _uiState.value = LoginUiState(isLoading = true)
-            when (val r = repo.register(nombres, apellidos, email, password, fecha_Nacimiento, genero)) {
+            when (val r = repo.register(nombres, apellidos, email, password, fecha_nacimiento, genero)) {
                 is AuthResult.Success -> {
                     _uiState.value = LoginUiState(
                         isLoading = false,
