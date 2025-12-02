@@ -385,7 +385,6 @@ fun DashboardPrincipal(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             ) {
                 QuickAction(icon = Icons.Outlined.FavoriteBorder, text = "Monitoreo", onClick = onOpenMonitor)
-                QuickAction(icon = Icons.Outlined.BarChart, text = "Salud Mental", onClick = { })
                 QuickAction(icon = Icons.Outlined.Alarm, text = "Alertas", onClick = onOpenAlerts)
                 QuickAction(icon = Icons.Outlined.History, text = "Historial", onClick = onOpenHistory)
                 QuickAction(icon = Icons.Outlined.Person, text = "Perfil", onClick = onOpenProfile)
