@@ -23,6 +23,8 @@ fun RegisterScreen(
     var apellidos by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var fecha_nacimiento by remember { mutableStateOf("") }
+    var genero by remember { mutableStateOf("") }
 
     val state by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -86,6 +88,32 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Next
+            )
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = fecha_nacimiento,
+            onValueChange = { fecha_nacimiento = it },
+            label = { Text("Fecha de nacimiento (YYYY-MM-DD)") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            )
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = genero,
+            onValueChange = { genero = it },
+            label = { Text("Género") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done
             )
         )
@@ -94,8 +122,14 @@ fun RegisterScreen(
 
         Button(
             onClick = {
-                val fullName = "$nombres $apellidos"
-                viewModel.register(fullName, email, password)
+                viewModel.register(
+                    nombres,
+                    apellidos,
+                    email,
+                    password,
+                    fecha_nacimiento,
+                    genero
+                )
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !state.isLoading

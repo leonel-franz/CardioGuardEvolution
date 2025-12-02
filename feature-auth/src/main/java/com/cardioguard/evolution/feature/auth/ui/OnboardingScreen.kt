@@ -22,25 +22,30 @@ fun OnboardingScreen(
     navController: NavController
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        // Imagen de fondo
+
+        // Fondo de imagen
         Image(
             painter = painterResource(id = R.drawable.bg_onboarding),
-            contentDescription = "Fondo Onboarding",
+            contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        // Overlay color semitransparente
+        // Capa con color y opacidad
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xAA10B3C4), Color(0xAA10B3C4))
+                        colors = listOf(
+                            Color(0xAA10B3C4),
+                            Color(0xAA10B3C4)
+                        )
                     )
                 )
         )
 
+        // Contenido principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -48,20 +53,22 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Logo/título
+
+            // Título / logo
             Text(
                 text = "CardioGuardEvolution",
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Botones
+            // Botonera inferior
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 Button(
                     onClick = {
                         navController.navigate(Route.Login.path) {
@@ -74,10 +81,10 @@ fun OnboardingScreen(
                         .fillMaxWidth()
                         .height(50.dp)
                 ) {
-                    Text(text = "Iniciar Sesión")
+                    Text("Iniciar Sesión")
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
                 OutlinedButton(
                     onClick = {
@@ -91,7 +98,7 @@ fun OnboardingScreen(
                         .fillMaxWidth()
                         .height(50.dp)
                 ) {
-                    Text(text = "Registrarse")
+                    Text("Registrarse")
                 }
             }
         }

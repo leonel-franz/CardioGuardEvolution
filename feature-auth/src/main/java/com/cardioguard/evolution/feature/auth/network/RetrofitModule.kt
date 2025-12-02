@@ -1,6 +1,6 @@
 package com.cardioguard.evolution.feature.auth.network
 
-import com.cardioguard.evolution.feature.auth.network.ApiService
+import com.cardioguard.evolution.data.remote.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,5 +1,6 @@
 package com.cardioguard.evolution.feature.auth.data
 
+import com.cardioguard.evolution.data.remote.LoginResponse
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
