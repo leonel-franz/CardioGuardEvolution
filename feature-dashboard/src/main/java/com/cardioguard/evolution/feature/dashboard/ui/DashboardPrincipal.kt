@@ -61,6 +61,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.cardioguard.evolution.feature.dashboard.vm.DashboardViewModel
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -153,7 +160,7 @@ fun DashboardPrincipal(
                 }
             }
 
-            // TARJETA BPM
+            // TARJETA BPM MEJORADA
             Card(
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = CardBlanca)
@@ -169,7 +176,7 @@ fun DashboardPrincipal(
                     ) {
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
-                                text = dashboardViewModel.bpm.value, // BPM ahora viene de /ir
+                                text = dashboardViewModel.bpm.value, // BPM actual
                                 fontSize = 40.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF222222)
@@ -182,19 +189,79 @@ fun DashboardPrincipal(
                                 )
                             )
                         }
-                        Box(modifier = Modifier.height(24.dp).width(96.dp))
+
+                        Box(modifier = Modifier.height(40.dp).width(100.dp)) {
+                            val bpmHistory = dashboardViewModel.bpmHistory.value
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                if (bpmHistory.isEmpty()) {
+                                    // Línea recta gris centrada si no hay datos
+                                    drawLine(
+                                        color = Color.DarkGray,
+                                        start = Offset(0f, size.height / 2),
+                                        end = Offset(size.width, size.height / 2),
+                                        strokeWidth = 3f
+                                    )
+                                } else {
+                                    val maxBpm = (bpmHistory.maxOrNull() ?: 100).toFloat()
+                                    val minBpm = (bpmHistory.minOrNull() ?: 40).toFloat()
+                                    val stepX = size.width / (bpmHistory.size - 1).coerceAtLeast(1)
+
+                                    bpmHistory.forEachIndexed { index, bpm ->
+                                        if (index > 0) {
+                                            val prevBpm = bpmHistory[index - 1]
+                                            val x1 = (index - 1) * stepX
+                                            val x2 = index * stepX
+
+                                            // Ajustar Y para centrar la línea dentro del box
+                                            val y1 = size.height - ((prevBpm - minBpm) / (maxBpm - minBpm)) * size.height
+                                            val y2 = size.height - ((bpm - minBpm) / (maxBpm - minBpm)) * size.height
+
+                                            // Color dinámico según valor
+                                            val lineColor = when {
+                                                bpm == 0 -> Color.DarkGray
+                                                bpm in 60..100 -> VerdeNormal
+                                                bpm < 60 -> NaranjaModerado
+                                                bpm > 100 -> RojoAlerta
+                                                else -> VerdeNormal
+                                            }
+
+                                            drawLine(
+                                                color = lineColor,
+                                                start = Offset(x1, y1),
+                                                end = Offset(x2, y2),
+                                                strokeWidth = 3f,
+                                                cap = StrokeCap.Round
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Estado dinámico de BPM
+                    val bpmValue = dashboardViewModel.bpm.value.toIntOrNull() ?: 0
+                    val bpmStatus = when {
+                        bpmValue == 0 -> "SIN DATOS"
+                        bpmValue < 60 -> "BAJO (BRADICARDIA)"
+                        bpmValue in 60..100 -> "NORMAL"
+                        bpmValue > 100 -> "ALERTA (TAQUICARDIA)"
+                        else -> "NORMAL"
+                    }
+                    val bpmColor = when {
+                        bpmValue == 0 -> Color.Gray
+                        bpmValue < 60 -> NaranjaModerado
+                        bpmValue in 60..100 -> VerdeNormal
+                        bpmValue > 100 -> RojoAlerta
+                        else -> VerdeNormal
                     }
 
                     AssistChip(
                         onClick = {},
-                        label = { Text(
-                            if (dashboardViewModel.alert.value.isEmpty()) "NORMAL" else "ALERTA",
-                            fontSize = 12.sp
-                        ) },
+                        label = { Text(bpmStatus, fontSize = 12.sp) },
                         colors = AssistChipDefaults.assistChipColors(
-                            containerColor = if (dashboardViewModel.alert.value.isEmpty())
-                                VerdeNormal.copy(alpha = 0.12f) else RojoAlerta.copy(alpha = 0.2f),
-                            labelColor = if (dashboardViewModel.alert.value.isEmpty()) VerdeNormal else RojoAlerta
+                            containerColor = bpmColor.copy(alpha = 0.12f),
+                            labelColor = bpmColor
                         )
                     )
                 }
@@ -206,6 +273,22 @@ fun DashboardPrincipal(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // SpO₂ dinámico
+                val oxValue = dashboardViewModel.oxigen.value.toIntOrNull() ?: 0
+                val oxStatus = when {
+                    oxValue == 0 -> "SIN DATOS"
+                    oxValue < 90 -> "BAJO"
+                    oxValue in 90..94 -> "LIGERAMENTE BAJO"
+                    oxValue in 95..100 -> "NORMAL"
+                    else -> "NORMAL"
+                }
+                val oxColor = when {
+                    oxValue == 0 -> Color.Gray
+                    oxValue < 90 -> RojoAlerta
+                    oxValue in 90..94 -> NaranjaModerado
+                    oxValue in 95..100 -> VerdeNormal
+                    else -> VerdeNormal
+                }
+
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
@@ -230,10 +313,10 @@ fun DashboardPrincipal(
                         }
                         AssistChip(
                             onClick = {},
-                            label = { Text("ÓPTIMO", fontSize = 10.sp) },
+                            label = { Text(oxStatus, fontSize = 10.sp) },
                             colors = AssistChipDefaults.assistChipColors(
-                                containerColor = VerdeNormal.copy(alpha = 0.12f),
-                                labelColor = VerdeNormal
+                                containerColor = oxColor.copy(alpha = 0.12f),
+                                labelColor = oxColor
                             ),
                             modifier = Modifier.height(24.dp)
                         )
@@ -241,6 +324,22 @@ fun DashboardPrincipal(
                 }
 
                 // Temperatura dinámica
+                val tempValue = dashboardViewModel.temp.value.toFloatOrNull() ?: 0f
+                val tempStatus = when {
+                    tempValue == 0f -> "SIN DATOS"
+                    tempValue < 36f -> "BAJO"
+                    tempValue in 36f..37.5f -> "NORMAL"
+                    tempValue > 37.5f -> "ALERTA"
+                    else -> "NORMAL"
+                }
+                val tempColor = when {
+                    tempValue == 0f -> Color.Gray
+                    tempValue < 36f -> Color(0xFF4FC3F7) // azul para hipotermia ligera
+                    tempValue in 36f..37.5f -> VerdeNormal
+                    tempValue > 37.5f -> RojoAlerta
+                    else -> VerdeNormal
+                }
+
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
@@ -265,10 +364,10 @@ fun DashboardPrincipal(
                         }
                         AssistChip(
                             onClick = {},
-                            label = { Text("NORMAL", fontSize = 10.sp) },
+                            label = { Text(tempStatus, fontSize = 10.sp) },
                             colors = AssistChipDefaults.assistChipColors(
-                                containerColor = VerdeNormal.copy(alpha = 0.12f),
-                                labelColor = VerdeNormal
+                                containerColor = tempColor.copy(alpha = 0.12f),
+                                labelColor = tempColor
                             ),
                             modifier = Modifier.height(24.dp)
                         )
@@ -277,24 +376,6 @@ fun DashboardPrincipal(
             }
 
             Spacer(Modifier.height(4.dp))
-
-            // ----------------------
-            // DEBUG PANEL
-            // ----------------------
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text("DEBUG PANEL", color = Color.White, fontWeight = FontWeight.Bold)
-                    Text("BPM: ${dashboardViewModel.bpm.value}", color = Color.White)
-                    Text("O₂: ${dashboardViewModel.oxigen.value}", color = Color.White)
-                    Text("Temp: ${dashboardViewModel.temp.value} °C", color = Color.White)
-                    Text("WiFi: ${dashboardViewModel.wifiConnected.value}", color = Color.White)
-                    Text("Sensor: ${dashboardViewModel.sensorDetected.value}", color = Color.White)
-                }
-            }
 
             // ACCIONES RÁPIDAS
             FlowRow(

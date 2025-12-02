@@ -17,6 +17,9 @@ class DashboardViewModel : ViewModel() {
     val alert = mutableStateOf("")
     val alertCount = mutableStateOf(0L)
 
+    // Historial de BPM para mini-gráfica
+    val bpmHistory = mutableStateOf(listOf<Int>())
+
     // Configura tu broker MQTT
     private val brokerUrl = "tcp://161.132.4.162:1883" // broker real
     private val clientId = "android_client"
@@ -54,6 +57,10 @@ class DashboardViewModel : ViewModel() {
                 // /ir ahora representa BPM
                 val bpmVal = value.toIntOrNull()?.coerceAtMost(999) ?: 0
                 bpm.value = bpmVal.toString()
+
+                // Actualizar historial de BPM (últimos 20 datos)
+                val updatedHistory = (bpmHistory.value + bpmVal).takeLast(20)
+                bpmHistory.value = updatedHistory
 
                 // Alertas por BPM alto
                 if (bpmVal > 75) { // ajusta el umbral si quieres
