@@ -6,17 +6,18 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cardioguard.evolution.feature.auth.navigation.Route
 import com.cardioguard.evolution.feature.auth.ui.LoginScreen
 import com.cardioguard.evolution.feature.auth.ui.OnboardingScreen
 import com.cardioguard.evolution.feature.auth.ui.RegisterScreen
 import com.cardioguard.evolution.feature.cardiac.ui.CardiacMonitorScreen
 import com.cardioguard.evolution.feature.dashboard.ui.DashboardPrincipal
+import com.cardioguard.evolution.feature.dashboard.vm.DashboardViewModel
 import com.cardioguard.evolution.feature.history.ui.AlertsCenterScreen
 import com.cardioguard.evolution.feature.history.ui.HistoryCompleteScreen
 import com.cardioguard.evolution.feature.profile.ui.ProfileScreen
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.cardioguard.evolution.feature.dashboard.vm.DashboardViewModel
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
@@ -26,12 +27,12 @@ fun AppNavHost(navController: NavHostController) {
         startDestination = Route.Onboarding.path
     ) {
 
-        // ONBOARDING
+        // --- ONBOARDING ---
         composable(Route.Onboarding.path) {
             OnboardingScreen(navController = navController)
         }
 
-        // LOGIN
+        // --- LOGIN ---
         composable(Route.Login.path) {
             LoginScreen(
                 onLoginSuccess = { name ->
@@ -49,7 +50,7 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
 
-        // REGISTER
+        // --- REGISTER ---
         composable(Route.Register.path) {
             RegisterScreen(
                 navController = navController,
@@ -63,13 +64,13 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
 
-        // DASHBOARD con argumento userName
+        // --- DASHBOARD (con argumento userName) ---
         composable(
             route = Route.Dashboard.path,
             arguments = listOf(navArgument("userName") { type = NavType.StringType })
         ) { backStackEntry ->
             val userName = backStackEntry.arguments?.getString("userName").orEmpty()
-            val dashboardViewModel: DashboardViewModel = hiltViewModel() // <- obtenemos ViewModel aquí
+            val dashboardViewModel: DashboardViewModel = hiltViewModel(backStackEntry)
 
             DashboardPrincipal(
                 dashboardViewModel = dashboardViewModel,
@@ -81,21 +82,27 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
 
-        // MONITOR CARDÍACO
+        // --- MONITOR CARDÍACO ---
         composable(Route.CardiacMonitor.path) {
+            // Reutilizamos la misma instancia de DashboardViewModel desde el Dashboard
+            val dashboardViewModel: DashboardViewModel =
+                hiltViewModel(navController.getBackStackEntry(Route.Dashboard.path))
+            val context = LocalContext.current
+
             CardiacMonitorScreen(
+                bpmHistory = dashboardViewModel.bpmHistory.value,
                 onBack = { navController.popBackStack() },
-                onShare = {},
-                onExportPdf = {}
+                onShare = { dashboardViewModel.shareReport(context) },
+                onExportPdf = { dashboardViewModel.exportPdf(context) }
             )
         }
 
-        // CENTRO DE ALERTAS
+        // --- CENTRO DE ALERTAS ---
         composable(Route.AlertsCenter.path) {
             AlertsCenterScreen(onBack = { navController.popBackStack() })
         }
 
-        // PERFIL
+        // --- PERFIL ---
         composable(Route.Profile.path) {
             ProfileScreen(
                 onBack = { navController.popBackStack() },
@@ -103,7 +110,7 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
 
-        // HISTÓRICO COMPLETO
+        // --- HISTÓRICO COMPLETO ---
         composable(Route.HistoryComplete.path) {
             HistoryCompleteScreen(onBack = { navController.popBackStack() })
         }

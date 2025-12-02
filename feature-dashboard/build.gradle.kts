@@ -45,6 +45,8 @@ dependencies {
     implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2") // versión reciente
+    implementation("androidx.compose.runtime:runtime:1.5.0") // versión Compose de tu proyecto
     // Para comunicación entre módulos
     implementation(project(":core-model"))
     implementation(project(":core-common"))

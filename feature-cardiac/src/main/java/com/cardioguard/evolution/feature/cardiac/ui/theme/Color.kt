@@ -15,3 +15,4 @@ val RojoCritico    = Color(0xFFE74C3C)   // para alertas fuertes, por si acaso
 val Gray100        = Color(0xFFF5F7FA)   // fondo claro / chips
 val CardBlanca     = Color(0xF5FFFFFF)   // tarjetas blancas (95% opacidad)
 val BarraFondo     = Color(0xFFE5E7EB)   // fondo de las barras de progreso
+val RojoAlerta = Color(0xFFE53935) // rojo intenso para alertas
